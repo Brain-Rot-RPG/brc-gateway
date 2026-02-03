@@ -1,0 +1,386 @@
+version: "3.9"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16
+    container_name: brc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brc_player
+      POSTGRES_USER: brc_player_user
+      POSTGRES_PASSWORD: brc_player_password
+    ports:
+      - "5404:5432"
+    volumes:
+      - brc_pgdata:/var/lib/postgresql/data
+      # Ou si votre init.sql est ailleurs, adaptez le chemin
+      - ./db/brc-player/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_player_user -d brc_player"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Player Service
+  player-service:
+    image: ghcr.io/brain-rot-rpg/brc-player-service:main
+    container_name: brc-player-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4004
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: brc_player
+      PGUSER: brc_player_user
+      PGPASSWORD: brc_player_password
+    ports:
+      - "4004:4004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - brc-network
+
+  # Save Service Database
+  save-postgres:
+    image: postgres:16
+    container_name: brc-save-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brc_save
+      POSTGRES_USER: brc_save_user
+      POSTGRES_PASSWORD: brc_save_password
+    ports:
+      - "5405:5432"
+    volumes:
+      - brc_save_pgdata:/var/lib/postgresql/data
+      - ./db/brc-save/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_save_user -d brc_save"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Save Service
+  save-service:
+    image: ghcr.io/brain-rot-rpg/brc-save-service:main
+    container_name: brc-save-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4005
+      DB_HOST: save-postgres
+      DB_PORT: 5432
+      DB_NAME: brc_save
+      DB_USER: brc_save_user
+      DB_PASSWORD: brc_save_password
+    ports:
+      - "4005:4005"
+    depends_on:
+      save-postgres:
+        condition: service_healthy
+    networks:
+      - brc-network
+
+  # Item Service Database
+  item-postgres:
+    image: postgres:16
+    container_name: brc-item-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brc_item
+      POSTGRES_USER: brc_item_user
+      POSTGRES_PASSWORD: brc_item_password
+    ports:
+      - "5409:5432"
+    volumes:
+      - brc_item_pgdata:/var/lib/postgresql/data
+      - ./db/brc-item/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_item_user -d brc_item"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Item Service
+  item-service:
+    image: ghcr.io/brain-rot-rpg/brc-item-service:main
+    container_name: brc-item-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4009
+      PGHOST: item-postgres
+      PGPORT: 5432
+      PGDATABASE: brc_item
+      PGUSER: brc_item_user
+      PGPASSWORD: brc_item_password
+    ports:
+      - "4009:4009"
+    depends_on:
+      item-postgres:
+        condition: service_healthy
+    networks:
+      - brc-network
+
+  # Brainrot Service Database
+  brainrot-postgres:
+    image: postgres:16
+    container_name: brc-brainrot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brc_brainrot
+      POSTGRES_USER: brc_brainrot_user
+      POSTGRES_PASSWORD: brc_brainrot_password
+    ports:
+      - "5401:5432"
+    volumes:
+      - brc_brainrot_pgdata:/var/lib/postgresql/data
+      - ./db/brc-brainrot/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_brainrot_user -d brc_brainrot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Brainrot Service
+  brainrot-service:
+    image: ghcr.io/brain-rot-rpg/brc-brainrot-service:main
+    container_name: brc-brainrot-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      PGHOST: brainrot-postgres
+      PGPORT: 5432
+      PGDATABASE: brc_brainrot
+      PGUSER: brc_brainrot_user
+      PGPASSWORD: brc_brainrot_password
+    ports:
+      - "4001:4001"
+    depends_on:
+      brainrot-postgres:
+        condition: service_healthy
+    networks:
+      - brc-network
+
+  # Dungeon Service Database
+  dungeon-postgres:
+    image: postgres:16
+    container_name: brc-dungeon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brc_dungeon
+      POSTGRES_USER: brc_dungeon_user
+      POSTGRES_PASSWORD: brc_dungeon_password
+    ports:
+      - "5403:5432"
+    volumes:
+      - brc_dungeon_pgdata:/var/lib/postgresql/data
+      - ./db/brc-dungeon/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_dungeon_user -d brc_dungeon"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Dungeon Service
+  dungeon-service:
+    image: ghcr.io/brain-rot-rpg/brc-dungeon-service:main
+    container_name: brc-dungeon-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4003
+      PGHOST: dungeon-postgres
+      PGPORT: 5432
+      PGDATABASE: brc_dungeon
+      PGUSER: brc_dungeon_user
+      PGPASSWORD: brc_dungeon_password
+      BRAINROT_SERVICE_HOST: brainrot-service
+      BRAINROT_SERVICE_PORT: 4001
+      ITEM_SERVICE_HOST: item-service
+      ITEM_SERVICE_PORT: 4009
+    ports:
+      - "4003:4003"
+    depends_on:
+      dungeon-postgres:
+        condition: service_healthy
+      brainrot-service:
+        condition: service_started
+      item-service:
+        condition: service_started
+    networks:
+      - brc-network
+
+  # Auth Service Database
+  auth-postgres:
+    image: postgres:16
+    container_name: brc-auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: brc_auth_user
+      POSTGRES_PASSWORD: brc_auth_password
+    ports:
+      - "5407:5432"
+    volumes:
+      - brc_auth_pgdata:/var/lib/postgresql/data
+      - ./db/brc-auth/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_auth_user -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Auth Service
+  auth-service:
+    image: ghcr.io/brain-rot-rpg/brc-auth-service:develop
+    container_name: brc-auth-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4007
+      DB_HOST: auth-postgres
+      DB_PORT: 5432
+      DB_USER: brc_auth_user
+      DB_PASSWORD: brc_auth_password
+      DB_NAME: auth_db
+      JWT_SECRET: your_super_secret_jwt_key_change_in_production
+      JWT_ACCESS_EXPIRATION: 15m
+      JWT_REFRESH_EXPIRATION: 7d
+    ports:
+      - "4007:4007"
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    networks:
+      - brc-network
+
+  # Battle Service Database
+  battle-postgres:
+    image: postgres:16
+    container_name: brc-battle-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brc_battle
+      POSTGRES_USER: brc_battle_user
+      POSTGRES_PASSWORD: brc_battle_password
+    ports:
+      - "5408:5432"
+    volumes:
+      - brc_battle_pgdata:/var/lib/postgresql/data
+      - ./db/brc-battle/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brc_battle_user -d brc_battle"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - brc-network
+
+  # Battle Service
+  battle-service:
+    image: ghcr.io/brain-rot-rpg/brc-battle-service:main
+    container_name: brc-battle-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4008
+      PGHOST: battle-postgres
+      PGPORT: 5432
+      PGDATABASE: brc_battle
+      PGUSER: brc_battle_user
+      PGPASSWORD: brc_battle_password
+    ports:
+      - "4008:4008"
+    depends_on:
+      battle-postgres:
+        condition: service_healthy
+    networks:
+      - brc-network
+
+  # MongoDB for Log Service
+  mongodb:
+    image: mongo:latest
+    container_name: brc-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: sigma_admin
+      MONGO_INITDB_ROOT_PASSWORD: brainrot_password_2026
+    ports:
+      - "27017:27017"
+    volumes:
+      - brc_mongo_data:/data/db
+    networks:
+      - brc-network
+
+  # RabbitMQ for Log Service
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: brc-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: brc_runner
+      RABBITMQ_DEFAULT_PASS: rabbit_pass_secure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - brc_rabbit_data:/var/lib/rabbitmq
+    networks:
+      - brc-network
+
+  # Log Service
+  log-service:
+    image: ghcr.io/brain-rot-rpg/brc-log-service:latest
+    container_name: brc-log-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4010
+      MONGO_ROOT_USER: sigma_admin
+      MONGO_ROOT_PASS: brainrot_password_2026
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB_NAME: brc_logs
+      RABBIT_USER: brc_runner
+      RABBIT_PASS: rabbit_pass_secure
+      RABBIT_HOST: rabbitmq
+      RABBIT_PORT: 5672
+    ports:
+      - "4010:4010"
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - brc-network
+
+volumes:
+  brc_pgdata:
+  brc_save_pgdata:
+  brc_item_pgdata:
+  brc_brainrot_pgdata:
+  brc_dungeon_pgdata:
+  brc_auth_pgdata:
+  brc_battle_pgdata:
+  brc_mongo_data:
+  brc_rabbit_data:
+
+networks:
+  brc-network:
+    driver: bridge
