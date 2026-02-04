@@ -46,6 +46,9 @@ export class RoutingSystem {
       const rewrittenUrl = req.url.replace(new RegExp(`^${config.path}`), '');
       req.url = rewrittenUrl.length === 0 ? '/' : rewrittenUrl;
 
+      // log the proxyed request host and url
+      console.log(`Proxying request to [${name}] ${config.url}${req.url}`);
+      
       proxy.web(req, res);
 
       const restoreUrl = () => {
