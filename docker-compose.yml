@@ -26,7 +26,7 @@ services:
 
   # Player Service
   player-service:
-    image: ghcr.io/brain-rot-rpg/brc-player-service:develop
+    image: ghcr.io/brain-rot-rpg/brc-player-service:main
     container_name: brc-player-service
     restart: unless-stopped
     environment:
