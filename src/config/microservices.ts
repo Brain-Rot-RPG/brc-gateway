@@ -14,7 +14,7 @@ export const microservices: Record<string, MicroserviceConfig> = {
   },
   auth: {
     path: '/auth',
-    url: process.env.AUTH_SERVICE_URL || 'http://localhost:3002',
+    url: process.env.AUTH_SERVICE_URL || 'http://localhost:4007/api/v1/auth',
   },
   battle: {
     path: '/battle',

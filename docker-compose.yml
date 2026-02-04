@@ -249,7 +249,7 @@ services:
 
   # Auth Service
   auth-service:
-    image: ghcr.io/brain-rot-rpg/brc-auth-service:develop
+    image: ghcr.io/brain-rot-rpg/brc-auth-service:main
     container_name: brc-auth-service
     restart: unless-stopped
     environment:
