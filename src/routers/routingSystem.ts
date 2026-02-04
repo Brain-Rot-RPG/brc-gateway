@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import httpProxy from 'http-proxy';
 import microservices, { MicroserviceConfig } from '../config/microservices';
+import { ClientRequest, IncomingMessage, ServerResponse } from 'http'; // Imports requis
 
 export class RoutingSystem {
   private router: Router;
@@ -30,6 +31,21 @@ export class RoutingSystem {
       changeOrigin: true
     });
 
+    // Utilisation des types attendus par @types/http-proxy
+    proxy.on('proxyReq', (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse) => {
+      // Cast de req en Request d'Express pour accéder à .body
+      const expressReq = req as Request;
+      
+      if (expressReq.body && Object.keys(expressReq.body).length > 0) {
+        const bodyData = JSON.stringify(expressReq.body);
+        
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        
+        proxyReq.write(bodyData);
+      }
+    });
+
     proxy.on('error', (err, req, res) => {
       const response = res as Response;
       if (!response.headersSent) {
@@ -46,7 +62,6 @@ export class RoutingSystem {
       const rewrittenUrl = req.url.replace(new RegExp(`^${config.path}`), '');
       req.url = rewrittenUrl.length === 0 ? '/' : rewrittenUrl;
 
-      // log the proxyed request host and url
       console.log(`Proxying request to [${name}] ${config.url}${req.url}`);
       
       proxy.web(req, res);
