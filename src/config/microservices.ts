@@ -39,6 +39,10 @@ export const microservices: Record<string, MicroserviceConfig> = {
   item: {
     path: '/item',
     url: process.env.ITEM_SERVICE_URL || 'http://localhost:3008',
+  },
+  logs: {
+    path: '/logs',
+    url: process.env.LOG_SERVICE_URL || 'http://localhost:3009',
   }
 };
 
