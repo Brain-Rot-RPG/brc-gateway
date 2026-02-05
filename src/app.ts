@@ -2,6 +2,7 @@ import express from 'express';
 
 import {logMiddleware} from './config/logMiddleware';
 import routingSystem from './routers/routingSystem';
+import imageRouter from './routers/imageRoutes';
 // import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
@@ -45,5 +46,6 @@ app.use((req, res, next) => {
 app.use(logMiddleware);
 
 app.use('/api/v1', routingSystem.getRouter());
+app.use('/api/v1/images', imageRouter);
 
 export default app;

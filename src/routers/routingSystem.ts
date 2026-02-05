@@ -20,13 +20,13 @@ export class RoutingSystem {
             this.addMicroserviceRoute(name, config);
         }); 
 
-        this.router.use((req: Request, res: Response) => {
-            res.status(404).json({
-                error: 'Route not found',
-                message: `Aucun microservice ne correspond à la route: ${req.path}`,
-                availableServices: this.getAvailableServices()
-            });
-        });
+        // this.router.use((req: Request, res: Response) => {
+        //     res.status(404).json({
+        //         error: 'Route not found',
+        //         message: `Aucun microservice ne correspond à la route: ${req.path}`,
+        //         availableServices: this.getAvailableServices()
+        //     });
+        // });
     }
 
     private addMicroserviceRoute(name: string, config: MicroserviceConfig): void {
