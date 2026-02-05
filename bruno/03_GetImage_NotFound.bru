@@ -1,0 +1,23 @@
+meta {
+  name: Gateway - Get Image (not found)
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:3000/api/v1/images/notfound12345
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("Error message is returned", function() {
+    const body = res.getBody();
+    expect(body.error).to.equal('Image not found');
+    expect(body.id).to.equal('notfound12345');
+  });
+}

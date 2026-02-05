@@ -1,0 +1,22 @@
+meta {
+  name: Gateway - Get Image (invalid id)
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/api/v1/images/bad$id
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+
+  test("Error message is returned", function() {
+    const body = res.getBody();
+    expect(body.error).to.equal('Invalid image id');
+  });
+}
