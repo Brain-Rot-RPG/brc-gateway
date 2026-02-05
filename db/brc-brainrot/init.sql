@@ -37,7 +37,7 @@ INSERT INTO brainrots (id, name, base_hp, base_attack, is_boss, created_at, imag
 (17, 'Bombombini Gusini', 111, 11, FALSE, NOW(), 'Bombombini_gusini_original'),
 (18, 'Job Job Job Sahur', 104, 10, FALSE, NOW(), 'Job_sahur'),
 (19, 'U Din Din Din Din Dun Ma Din Din Din Dun', 90, 9, FALSE, NOW(), 'U_Din_Din_Din_Din_Dun_Ma_Din_Din_Din_Dun2'),
-(20, 'Orcalero Orcala', 83, 8, FALSE, NOW(), 'OrcaleroORCALA!'),
+(20, 'Orcalero Orcala', 83, 8, FALSE, NOW(), 'OrcaleroORCALA'),
 (21, 'Noobini Pizzanini', 70, 7, FALSE, NOW(), 'Noobini_Pizzanini'),
 (22, 'La Vacca Saturno Saturnita', 69, 7, FALSE, NOW(), 'Saturno_Saturnita'),
 (23, 'Frigo Camelo', 64, 6, FALSE, NOW(), 'Frigo_Camelo'),
